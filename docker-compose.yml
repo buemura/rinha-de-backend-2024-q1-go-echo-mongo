@@ -1,38 +1,42 @@
 version: "3.5"
 
 services:
-  # api01: &api
-  #   build: .
-  #   hostname: api01
-  #   environment:
-  #     - PORT=8080
-  #     - DATABASE_URL=mongodb://admin:123@db:27017
-  #   depends_on:
-  #     - db
-  #   deploy:
-  #     resources:
-  #       limits:
-  #         cpus: "0.3"
-  #         memory: "85MB"
+  api01: &api
+    build: .
+    hostname: api01
+    environment:
+      - PORT=8080
+      - DATABASE_URL=mongodb://admin:123@db:27017
+    depends_on:
+      - db
+    networks:
+      - rinha-backend
+    deploy:
+      resources:
+        limits:
+          cpus: "0.3"
+          memory: "85MB"
 
-  # api02:
-  #   <<: *api
-  #   hostname: api02
+  api02:
+    <<: *api
+    hostname: api02
 
-  # nginx:
-  #   image: nginx:latest
-  #   volumes:
-  #     - ./.config/nginx.conf:/etc/nginx/nginx.conf:ro
-  #   depends_on:
-  #     - api01
-  #     - api02
-  #   ports:
-  #     - "9999:9999"
-  #   deploy:
-  #     resources:
-  #       limits:
-  #         cpus: "0.2"
-  #         memory: "30MB"
+  nginx:
+    image: nginx:latest
+    volumes:
+      - ./.config/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - api01
+      - api02
+    ports:
+      - "9999:9999"
+    networks:
+      - rinha-backend
+    deploy:
+      resources:
+        limits:
+          cpus: "0.2"
+          memory: "30MB"
 
   db:
     container_name: mongo
@@ -45,6 +49,8 @@ services:
       - "27017:27017"
     volumes:
       - ./.config/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+    networks:
+      - rinha-backend
     deploy:
       resources:
         limits:
@@ -52,6 +58,5 @@ services:
           memory: "350MB"
 
 networks:
-  default:
+  rinha-backend:
     driver: bridge
-    name: rinha-nginx-2024q1

@@ -4,6 +4,7 @@ db.createCollection("clientes");
 db.createCollection("transacoes");
 
 db.clientes.createIndex({ cliente_id: 1 });
+db.transacoes.createIndex({ cliente_id: 1, realizada_em: 1 });
 
 db.clientes.insertMany([
   {

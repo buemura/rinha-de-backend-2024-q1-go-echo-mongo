@@ -6,7 +6,6 @@ import (
 
 	"github.com/buemura/rinha-de-backend-2024-q1-go-echo-mongo/internal/modules/customer"
 	"github.com/buemura/rinha-de-backend-2024-q1-go-echo-mongo/internal/shared/database"
-	"github.com/jackc/pgx/v5"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
@@ -34,9 +33,9 @@ func GetTransactions(customerID int) ([]Transaction, error) {
 	if err := cursor.Err(); err != nil {
 		return nil, err
 	}
-	// if transactions == nil {
-	// 	transactions = []Transaction{}
-	// }
+	if transactions == nil {
+		transactions = []Transaction{}
+	}
 
 	return transactions, nil
 }
@@ -50,58 +49,46 @@ func CreateTransaction(customerID int, trx *CreateTransactionRequest) (*CreateTr
 		return nil, err
 	}
 
-	trxRes, err := insertTransaction(customerID, customerBalance.Limite, trx.Valor, string(trx.Tipo), trx.Descricao)
+	trxRes, err := insertTransaction(customerID, customerBalance.Limite, customerBalance.Saldo, trx.Valor, string(trx.Tipo), trx.Descricao)
 	if err != nil {
 		return nil, err
 	}
 	return trxRes, nil
 }
 
-func insertTransaction(customerID, limit, trxAmount int, trxType, description string) (*CreateTransactionResponse, error) {
-	tx, err := database.Conn.Begin(context.Background())
+func insertTransaction(customerID, limit, balance, trxAmount int, trxType, description string) (*CreateTransactionResponse, error) {
+    var balanceInc int
+    if trxType == "c" {
+		balanceInc = trxAmount
+    }
+    if trxType == "d" {
+        if (balance-trxAmount)*-1 > limit {
+            return nil, customer.ErrCustomerNoLimit
+        }
+        balanceInc = -trxAmount
+    }
+
+    updateCustomerFilter := bson.M{"cliente_id": customerID}
+	updateCustomer := bson.M{"$inc": bson.M{"saldo": balanceInc}}
+	err := database.CustColl.FindOneAndUpdate(database.Ctx, updateCustomerFilter, updateCustomer).Err()
 	if err != nil {
 		return nil, err
 	}
-	defer tx.Rollback(context.Background())
 
-	var balance int
-	err = tx.QueryRow(context.Background(), "SELECT valor FROM saldos WHERE cliente_id = $1 FOR UPDATE", customerID).Scan(&balance)
+	transaction := bson.M{
+        "cliente_id":   customerID,
+        "valor":        trxAmount,
+        "tipo":         trxType,
+        "descricao":    description,
+        "realizada_em": time.Now(),
+    }
+	_, err = database.TrxColl.InsertOne(database.Ctx, transaction)
 	if err != nil {
 		return nil, err
 	}
 
-	if trxType == "c" {
-		balance += trxAmount
-	}
-	if trxType == "d" {
-		if (balance-trxAmount)*-1 > limit {
-			return nil, customer.ErrCustomerNoLimit
-		}
-		balance -= trxAmount
-	}
-
-	batch := &pgx.Batch{}
-	batch.Queue(`
-        INSERT INTO transacoes (cliente_id, valor, tipo, descricao, realizada_em) 
-        VALUES ($1, $2, $3, $4, $5)
-    `, customerID, trxAmount, trxType, description, time.Now())
-	batch.Queue(`
-        UPDATE saldos SET valor = $1 WHERE cliente_id = $2
-    `, balance, customerID)
-
-	bRes := tx.SendBatch(context.Background(), batch)
-	if _, err := bRes.Exec(); err != nil {
-		return nil, err
-	}
-	if err := bRes.Close(); err != nil {
-		return nil, err
-	}
-	if err := tx.Commit(context.Background()); err != nil {
-		return nil, err
-	}
-
-	return &CreateTransactionResponse{
-		Saldo:  balance,
-		Limite: limit,
-	}, nil
+    return &CreateTransactionResponse{
+        Saldo:  balance + balanceInc,
+        Limite: limit,
+    }, nil
 }

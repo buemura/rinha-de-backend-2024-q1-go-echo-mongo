@@ -8,7 +8,8 @@ import (
 
 func GetCustomerBalance(customerID int) (*CustomerBalance, error) {
 	var customerBalance CustomerBalance
-	err := database.CustColl.FindOne(database.Ctx, bson.D{{Key: "cliente_id", Value: customerID}}).Decode(&customerBalance)
+	findCustomerFilter := bson.D{{Key: "customer_id", Value: customerID}}
+	err := database.CustColl.FindOne(database.Ctx, findCustomerFilter).Decode(&customerBalance)
 	if err == mongo.ErrNoDocuments {
 		return nil, ErrCustomerNotFound
 	}

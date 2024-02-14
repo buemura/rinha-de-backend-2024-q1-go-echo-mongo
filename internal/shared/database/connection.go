@@ -10,10 +10,10 @@ import (
 )
 
 var (
-	Client *mongo.Client
-	Ctx = context.TODO()
+	Client   *mongo.Client
+	Ctx      = context.TODO()
 	CustColl *mongo.Collection
-	TrxColl *mongo.Collection
+	TrxColl  *mongo.Collection
 )
 
 func Connect() {

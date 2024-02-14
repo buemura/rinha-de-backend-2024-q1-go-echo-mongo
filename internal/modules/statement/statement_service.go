@@ -22,11 +22,11 @@ func GetStatement(customerID int) (*StatementResponse, error) {
 	}
 
 	return &StatementResponse{
-		Saldo: StatementSaldo{
-			Total:       customerBalance.Saldo,
-			Limite:      customerBalance.Limite,
-			DataExtrato: time.Now(),
+		Balance: StatementBalance{
+			Total:         customerBalance.Balance,
+			Limit:         customerBalance.Limit,
+			StatementDate: time.Now(),
 		},
-		UltimasTransacoes: transactions,
+		LastTransactions: transactions,
 	}, nil
 }

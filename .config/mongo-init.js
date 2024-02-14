@@ -1,35 +1,35 @@
 db = db.getSiblingDB("rinha");
 
-db.createCollection("clientes");
-db.createCollection("transacoes");
+db.createCollection("customers");
+db.createCollection("transactions");
 
-db.clientes.createIndex({ cliente_id: 1 });
-db.transacoes.createIndex({ cliente_id: 1, realizada_em: 1 });
+db.customers.createIndex({ customer_id: 1 });
+db.transactions.createIndex({ customer_id: 1, created_at: 1 });
 
-db.clientes.insertMany([
+db.customers.insertMany([
   {
-    cliente_id: 1,
-    limite: 100000,
-    saldo: 0,
+    customer_id: 1,
+    limit: 100000,
+    balance: 0,
   },
   {
-    cliente_id: 2,
-    limite: 80000,
-    saldo: 0,
+    customer_id: 2,
+    limit: 80000,
+    balance: 0,
   },
   {
-    cliente_id: 3,
-    limite: 1000000,
-    saldo: 0,
+    customer_id: 3,
+    limit: 1000000,
+    balance: 0,
   },
   {
-    cliente_id: 4,
-    limite: 10000000,
-    saldo: 0,
+    customer_id: 4,
+    limit: 10000000,
+    balance: 0,
   },
   {
-    cliente_id: 5,
-    limite: 500000,
-    saldo: 0,
+    customer_id: 5,
+    limit: 500000,
+    balance: 0,
   },
 ]);

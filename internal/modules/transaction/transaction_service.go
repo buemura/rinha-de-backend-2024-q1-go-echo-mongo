@@ -11,8 +11,8 @@ import (
 )
 
 func GetTransactions(customerID int) ([]Transaction, error) {
-	filter := bson.M{"cliente_id": customerID}
-	options := options.Find().SetSort(bson.D{{Key: "realizada_em", Value: -1}}).SetLimit(10)
+	filter := bson.M{"customer_id": customerID}
+	options := options.Find().SetSort(bson.D{{Key: "created_at", Value: -1}}).SetLimit(10)
 
 	cursor, err := database.TrxColl.Find(context.Background(), filter, options)
 	if err != nil {
@@ -49,7 +49,7 @@ func CreateTransaction(customerID int, trx *CreateTransactionRequest) (*CreateTr
 		return nil, err
 	}
 
-	trxRes, err := insertTransaction(customerID, customerBalance.Limite, customerBalance.Saldo, trx.Valor, string(trx.Tipo), trx.Descricao)
+	trxRes, err := insertTransaction(customerID, customerBalance.Limit, customerBalance.Balance, trx.Amount, string(trx.Type), trx.Description)
 	if err != nil {
 		return nil, err
 	}
@@ -57,38 +57,38 @@ func CreateTransaction(customerID int, trx *CreateTransactionRequest) (*CreateTr
 }
 
 func insertTransaction(customerID, limit, balance, trxAmount int, trxType, description string) (*CreateTransactionResponse, error) {
-    var balanceInc int
-    if trxType == "c" {
+	var balanceInc int
+	if trxType == "c" {
 		balanceInc = trxAmount
-    }
-    if trxType == "d" {
-        if (balance-trxAmount)*-1 > limit {
-            return nil, customer.ErrCustomerNoLimit
-        }
-        balanceInc = -trxAmount
-    }
+	}
+	if trxType == "d" {
+		if (balance-trxAmount)*-1 > limit {
+			return nil, customer.ErrCustomerNoLimit
+		}
+		balanceInc = -trxAmount
+	}
 
-    updateCustomerFilter := bson.M{"cliente_id": customerID}
-	updateCustomer := bson.M{"$inc": bson.M{"saldo": balanceInc}}
+	updateCustomerFilter := bson.M{"customer_id": customerID}
+	updateCustomer := bson.M{"$inc": bson.M{"balance": balanceInc}}
 	err := database.CustColl.FindOneAndUpdate(database.Ctx, updateCustomerFilter, updateCustomer).Err()
 	if err != nil {
 		return nil, err
 	}
 
 	transaction := bson.M{
-        "cliente_id":   customerID,
-        "valor":        trxAmount,
-        "tipo":         trxType,
-        "descricao":    description,
-        "realizada_em": time.Now(),
-    }
+		"customer_id": customerID,
+		"amount":      trxAmount,
+		"type":        trxType,
+		"description": description,
+		"created_at":  time.Now(),
+	}
 	_, err = database.TrxColl.InsertOne(database.Ctx, transaction)
 	if err != nil {
 		return nil, err
 	}
 
-    return &CreateTransactionResponse{
-        Saldo:  balance + balanceInc,
-        Limite: limit,
-    }, nil
+	return &CreateTransactionResponse{
+		Balance: balance + balanceInc,
+		Limit:   limit,
+	}, nil
 }

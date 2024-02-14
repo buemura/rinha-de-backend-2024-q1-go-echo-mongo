@@ -10,11 +10,11 @@ import (
 )
 
 func SetupRoutes(e *echo.Echo) {
-	e.POST("/clientes/:clienteId/transacoes", createTransaction)
+	e.POST("/clientes/:customerId/transacoes", createTransaction)
 }
 
 func createTransaction(c echo.Context) error {
-	customerIdStr := c.Param("clienteId")
+	customerIdStr := c.Param("customerId")
 	customerId, err := strconv.Atoi(customerIdStr)
 	if err != nil {
 		return c.NoContent(http.StatusUnprocessableEntity)
@@ -27,7 +27,7 @@ func createTransaction(c echo.Context) error {
 	if err := validate.Struct(body); err != nil {
 		return c.NoContent(http.StatusUnprocessableEntity)
 	}
-	if body.Tipo != "c" && body.Tipo != "d" {
+	if body.Type != "c" && body.Type != "d" {
 		return c.NoContent(http.StatusUnprocessableEntity)
 	}
 

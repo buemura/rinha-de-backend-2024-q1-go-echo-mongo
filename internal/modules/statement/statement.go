@@ -6,13 +6,13 @@ import (
 	"github.com/buemura/rinha-de-backend-2024-q1-go-echo-mongo/internal/modules/transaction"
 )
 
-type StatementSaldo struct {
-	Total       int       `json:"total"`
-	DataExtrato time.Time `json:"data_extrato"`
-	Limite      int       `json:"limite"`
+type StatementBalance struct {
+	Total         int       `json:"total"`
+	StatementDate time.Time `json:"data_extrato"`
+	Limit         int       `json:"limite"`
 }
 
 type StatementResponse struct {
-	Saldo             StatementSaldo            `json:"saldo"`
-	UltimasTransacoes []transaction.Transaction `json:"ultimas_transacoes"`
+	Balance          StatementBalance          `json:"saldo"`
+	LastTransactions []transaction.Transaction `json:"ultimas_transacoes"`
 }

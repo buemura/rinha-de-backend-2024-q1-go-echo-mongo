@@ -9,11 +9,11 @@ import (
 )
 
 func SetupRoutes(e *echo.Echo) {
-	e.GET("/clientes/:clienteId/extrato", getStatement)
+	e.GET("/clientes/:customerId/extrato", getStatement)
 }
 
 func getStatement(c echo.Context) error {
-	customerIdStr := c.Param("clienteId")
+	customerIdStr := c.Param("customerId")
 	customerId, err := strconv.Atoi(customerIdStr)
 	if err != nil {
 		return c.NoContent(http.StatusUnprocessableEntity)

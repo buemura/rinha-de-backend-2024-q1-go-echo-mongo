@@ -2,9 +2,8 @@ package main
 
 import (
 	"github.com/buemura/rinha-de-backend-2024-q1-go-echo-mongo/internal/config"
-	"github.com/buemura/rinha-de-backend-2024-q1-go-echo-mongo/internal/modules/statement"
-	"github.com/buemura/rinha-de-backend-2024-q1-go-echo-mongo/internal/modules/transaction"
-	"github.com/buemura/rinha-de-backend-2024-q1-go-echo-mongo/internal/shared/database"
+	"github.com/buemura/rinha-de-backend-2024-q1-go-echo-mongo/internal/infra/database"
+	"github.com/buemura/rinha-de-backend-2024-q1-go-echo-mongo/internal/infra/http/routes"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )
@@ -24,6 +23,5 @@ func main() {
 func setupServerMiddlewares(app *echo.Echo) {
 	app.Use(middleware.Recover())
 	app.Use(middleware.Secure())
-	statement.SetupRoutes(app)
-	transaction.SetupRoutes(app)
+	routes.SetupRoutes(app)
 }

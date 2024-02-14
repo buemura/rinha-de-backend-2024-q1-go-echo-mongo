@@ -28,6 +28,6 @@ func Connect() {
 		log.Fatal(err)
 	}
 	Client = client
-	CustColl = client.Database("rinha").Collection("clientes")
-	TrxColl = client.Database("rinha").Collection("transacoes")
+	CustColl = client.Database("rinha").Collection("customers")
+	TrxColl = client.Database("rinha").Collection("transactions")
 }

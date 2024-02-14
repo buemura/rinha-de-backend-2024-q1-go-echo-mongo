@@ -3,10 +3,10 @@ package transaction
 import "time"
 
 type Transaction struct {
-	Amount      int       `json:"amount"`
-	Type        string    `json:"type"`
-	Description string    `json:"description"`
-	CreatedAt   time.Time `json:"created_at"`
+	Amount      int       `json:"valor"`
+	Type        string    `json:"tipo"`
+	Description string    `json:"descricao"`
+	CreatedAt   time.Time `json:"realizada_em"`
 }
 
 type CreateTransactionRequest struct {

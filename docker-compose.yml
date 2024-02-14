@@ -39,7 +39,6 @@ services:
           memory: "30MB"
 
   db:
-    container_name: mongo
     image: mongo:latest
     environment:
       - MONGO_INITDB_ROOT_USERNAME=admin

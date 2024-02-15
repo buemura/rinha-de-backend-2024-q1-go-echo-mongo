@@ -14,8 +14,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: "0.3"
-          memory: "85MB"
+          cpus: "0.2"
+          memory: "70MB"
 
   api02:
     <<: *api
@@ -39,11 +39,15 @@ services:
           memory: "30MB"
 
   db:
-    image: mongo:latest
+    image: docker.io/bitnami/mongodb:latest
     environment:
-      - MONGO_INITDB_ROOT_USERNAME=admin
-      - MONGO_INITDB_ROOT_PASSWORD=123
-      - MONGO_INITDB_DATABASE=rinha
+      - MONGODB_DATABASE=rinha
+      - MONGODB_ADVERTISED_HOSTNAME=db
+      - MONGODB_ROOT_USER=admin
+      - MONGODB_ROOT_PASSWORD=123
+      - MONGODB_REPLICA_SET_MODE=primary
+      - MONGODB_REPLICA_SET_NAME=rs0
+      - MONGODB_REPLICA_SET_KEY=replicasetkey123
     ports:
       - "27017:27017"
     volumes:
@@ -53,8 +57,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: "0.7"
-          memory: "350MB"
+          cpus: "0.9"
+          memory: "380MB"
 
 networks:
   rinha-backend:
